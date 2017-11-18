@@ -25,11 +25,6 @@ public class RpgGame extends ApplicationAdapter {
         listOfUnits.newHero(400, 200);
         listOfUnits.newMonster(700, 200);
         listOfUnits.newMonster(800, 100);
-        /*hero = new Hero();
-        hero.setPosition(new Vector2(400, 200));
-        monster = new Monster();
-        monster.setPosition(new Vector2(700, 200));*/
-        //currentUnit = hero;
         currentUnit = listOfUnits.getNext();
     }
 
@@ -41,18 +36,12 @@ public class RpgGame extends ApplicationAdapter {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         batch.begin();
         background.render(batch);
-        //hero.render(batch);
-        //monster.render(batch);
         batch.end();
         listOfUnits.render();
-        /*hero.render();
-        monster.render();*/
     }
 
     public void update(float dt) {
         listOfUnits.update(dt);
-        /*hero.update(dt);
-        monster.update(dt);*/
         if (currentUnit instanceof Hero) {
             for (AbstractUnit unit : listOfUnits.getListOfUnits()) {
                 if (InputHandler.checkClickInRect(unit.rect) && (unit instanceof Monster)) {

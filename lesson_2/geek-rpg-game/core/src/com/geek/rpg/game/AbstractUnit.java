@@ -3,18 +3,29 @@ package com.geek.rpg.game;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.utils.Align;
 import sun.security.provider.SHA;
 
+import javax.swing.*;
+import java.awt.*;
+
 public abstract class AbstractUnit {
+
     protected Texture texture;
     protected String name;
     protected int hp;
     protected int maxHp;
     protected ShapeRenderer shapeRenderer = new ShapeRenderer();
+    protected float HP_HEIGHT = 5.0f;
+    protected Label.LabelStyle labelStyleWhite = new Label.LabelStyle(new BitmapFont(), Color.WHITE);
+    protected Label dmgLabel = new Label("", labelStyleWhite);
+    protected String dmgText = "";
 
     protected int level;
 
@@ -47,12 +58,20 @@ public abstract class AbstractUnit {
 
     public void takeDamage(int dmg) {
         this.takeDamageAction = 1.0f;
-        hp -= dmg;
-        if (hp <= 0) hp = 0;
+        if ((float) Math.random() >= dexterity * 1.0f / 100) {
+            hp -= dmg;
+            if (hp <= 0) hp = 0;
+            dmgText = "- " + dmg;
+        } else {
+            dmgText = "Dodge!";
+        }
     }
 
     public void render() {
         Batch batch = new SpriteBatch();
+        BitmapFont font = new BitmapFont();
+        dmgLabel.setSize(texture.getWidth(), HP_HEIGHT);
+        dmgLabel.setAlignment(Align.center);
         batch.begin();
         if (takeDamageAction > 0) {
             batch.setColor(1f, 1f - takeDamageAction, 1f - takeDamageAction, 1f);
@@ -60,13 +79,17 @@ public abstract class AbstractUnit {
         float dx = (50f * (float) Math.sin((1f - attackAction) * 3.14f));
         if (flip) dx *= -1;
         if (hp > 0) {
+
             batch.draw(texture, position.x + dx, position.y, 0, 0, texture.getWidth(), texture.getHeight(), 1, 1, 0, 0, 0, texture.getWidth(), texture.getHeight(), flip, false);
+            dmgLabel.setPosition((int) position.x + dx, position.y + texture.getHeight() + 3 *HP_HEIGHT);
+            dmgLabel.setText(dmgText);
+            dmgLabel.draw(batch, 50f * (float) Math.sin((1f - takeDamageAction) * 3.14f));
             batch.setColor(1f, 1f, 1f, 1f);
             batch.end();
             drawHpBar(position.x + dx, position.y);
         } else {
-
             batch.draw(texture, position.x + dx, position.y, 0 + texture.getWidth()/2, texture.getWidth()/2, texture.getWidth(), texture.getHeight(), 1, 1, (flip ? -90 : 90), 0, 0, texture.getWidth(), texture.getHeight(), flip, false);
+            dmgLabel.setText("");
             batch.end();
         }
 
@@ -84,7 +107,7 @@ public abstract class AbstractUnit {
 
     public void meleeAttack(AbstractUnit enemy) {
         if (hp > 0) {
-            int dmg = this.strength - enemy.defence;
+            int dmg = this.strength - (int) (enemy.defence * (Math.random() - 0.5));
             if (dmg < 0) {
                 dmg = 0;
             }
@@ -96,11 +119,11 @@ public abstract class AbstractUnit {
     public void drawHpBar(float x, float y) {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(Color.GREEN);
-        shapeRenderer.rect(x, y + texture.getHeight(), texture.getWidth(), 5f);
+        shapeRenderer.rect(x, y + texture.getHeight(), texture.getWidth(), HP_HEIGHT);
         shapeRenderer.setColor(Color.RED);
         float percentOfHp = (float) hp / (float) maxHp;
         float sizeOfGreenBar = texture.getWidth() * percentOfHp;
-        shapeRenderer.rect(x + sizeOfGreenBar,y + texture.getHeight(), texture.getWidth() - sizeOfGreenBar, 5f);
+        shapeRenderer.rect(x + sizeOfGreenBar,y + texture.getHeight(), texture.getWidth() - sizeOfGreenBar, HP_HEIGHT);
         shapeRenderer.end();
     }
 }

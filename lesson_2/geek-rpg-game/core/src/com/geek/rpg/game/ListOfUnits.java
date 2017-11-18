@@ -46,6 +46,9 @@ public class ListOfUnits {
 	}
 
 	public List<AbstractUnit> getListOfUnits() {
+		for (AbstractUnit unit : listOfUnits) {
+			if (unit.hp == 0) listOfUnits.remove(unit);
+		}
 		return listOfUnits;
 	}
 }
